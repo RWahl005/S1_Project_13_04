@@ -37,6 +37,8 @@ document.addEventListener("click", onClick);
 var selectedLetters = [];
 // Variable containing all of the words that have been found.
 var foundWords = [];
+// If all of the words have been found.
+var won = false;
 
 // Calls the init function when the browser loads.
 window.onload = init;
@@ -46,7 +48,8 @@ window.onload = init;
 */
 
 /**
- * The init function is called when the browser isloaded.
+ * The init function is called when the browser isloaded.  
+ * Line 54
  */
 function init() {
       // Draws the word search table.
@@ -69,7 +72,7 @@ function init() {
 }
 
 /**
- * When the mouse is moved around
+ * When the mouse is moved around (Line 78)
  * @param {Event} e This is auto populated by the browser.
  */
 function onMove(e) {
@@ -85,10 +88,12 @@ function onMove(e) {
 }
 
 /**
- * When the mouse is clicked down.
+ * When the mouse is clicked down. (line 94)
  * @param {Event} e This is auto populated by the browser. 
  */
 function onDown(e) {
+      // If the user has found all of the words, return.
+      if (won) return;
       // If the cell clicked is not already part of a solution, set the background color to pink.
       if (e.target.style.backgroundColor != "lightgreen")
             e.target.style.backgroundColor = "pink";
@@ -110,10 +115,15 @@ function onDown(e) {
 }
 
 /**
- * Mouse up Event function.  
- * Called when the mouse is unclicked.
+ * Mouse up Event function.
+ * Called when the mouse is unclicked.  
+ * (line 122)
  */
 function mouseUp() {
+
+      // If the user found all of the words, return.
+      if (won) return;
+
       // Gets all of the cells.
       var cells = document.getElementsByClassName("wordCell");
       // Loop through all of the cells
@@ -128,16 +138,24 @@ function mouseUp() {
       if (foundWords.length === wordArray.length) {
             //Tell the user they won.
             alert("Congrats! You found all of the words!");
+            // Sets won to true.
+            won = true;
       }
 }
 
 /**
- * When the event is clicked.
+ * When the event is clicked. (line 150)
  * @param {Event} e 
  */
 function onClick(e) {
       // If the id of the element is show solution.
       if (e.target.id === "showSolution") {
+            // If the user already found all of the words, tell them and return.
+            if (won) {
+                  alert("You found all of the words! Good Job!");
+                  return;
+            }
+
             //runs the show solution function.
             showSolution();
       }
@@ -150,7 +168,7 @@ var solutionShown = false;
 var solutionElm = [];
 
 /**
- * Show the solution on the table.
+ * Show the solution on the table. (line 173)
  */
 function showSolution() {
       // If the solution is currently showing.
@@ -201,7 +219,8 @@ function showSolution() {
 /**
  * Checks if the word is in the list.
  * @param {String} word The string list.
- * @returns {Boolean} True if valid, false if not. (word may be reversed as well).
+ * @returns {Boolean} True if valid, false if not. (word may be reversed as well).  
+ * (line 225)
  */
 function isValidWord(word) {
       return wordArray.includes(word) || wordArray.includes(reverseWord(word));
@@ -209,7 +228,8 @@ function isValidWord(word) {
 
 /**
  * Runs the commands when a group of letters are selected.
- * @param {Boolean} valid if the word is valid or not.
+ * @param {Boolean} valid if the word is valid or not.  
+ * (line 234)
  */
 function crossOutWord(valid) {
       // If the word is not valid
@@ -231,9 +251,15 @@ function crossOutWord(valid) {
             // Returns the function.
             return;
       }
+
       // If the word is valid.
       // The word string
       var word = document.getElementById("pickedLetters").value;
+
+      // If the word has already been found, do nothing.
+      if (foundWords.includes(word) || foundWords.includes(reverseWord(word)))
+            return;
+
       // The word lists list elements.
       var wordList = document.querySelectorAll("#wordSearchList li");
       // The index of the word in that list.
@@ -248,22 +274,38 @@ function crossOutWord(valid) {
       for (var i = 0; i < wordList.length; i++) {
             if (wordList.item(i).innerHTML == reverseWords) wordIndex = i;
       }
-      // 
+      // Crosses out the word in the word list.
       wordList[wordIndex].style.textDecoration = "line-through";
 
+      // Sets all of the letters to lightgreen to show they have been found.
       for (var i = 0; i < selectedLetters.length; i++) {
             selectedLetters[i].style.backgroundColor = "lightgreen";
       }
 
+      // Resets the selectedLetters array.
       selectedLetters = [];
+      // Adds the word to the found word array.
       foundWords.push(word);
 }
 
+/**
+ * Reverses the string that it is provided.  
+ * Ex:  
+ *    Input: Hello  
+ *    Output: olleH  
+ * @param {String} word 
+ * @returns the reversed string.  
+ * (line 300)
+ */
 function reverseWord(word) {
+      // The variable the result will be stored in.
       var result = "";
+      // Loops through all of the characters in the word going from right to left.
       for (var i = word.length - 1; i >= 0; i--) {
+            //Adds the letter to the result variable.
             result += word[i];
       }
+      // Returns the result.
       return result;
 }
 
